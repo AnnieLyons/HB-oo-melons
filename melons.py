@@ -27,23 +27,30 @@ item specific atts
 class AbstractMelonOrder():
     """An abstract base class that other Melon Orders inherit from."""
 
-    def __init__(self, species, qty, order_type=None, tax=None, country_code=None):
+    def __init__(self, species, qty, country_code=None, order_type=None, tax=None):
         """Initialize melon order attributes."""
         
         self.species = species
         self.qty = qty
         self.shipped = False
-        self.order_type = order_type
-        self.tax = tax 
         if country_code:
             self.country_code = country_code
+        if order_type:
+            self.order_type = order_type
+        if tax:
+            self.tax = tax
 
 
     def get_total(self):
         """Calculate price, including tax."""
 
         base_price = 5
+        if self.species == 'Christmas':
+            base_price * 1.5
         total = (1 + self.tax) * self.qty * base_price
+
+        if self.qty < 10 and self.order_type == 'international':
+            total += 3
 
         return total
 
@@ -67,8 +74,8 @@ class InternationalMelonOrder(AbstractMelonOrder):
     order_type = "international"
     tax = 0.17
 
-
     def get_country_code(self):
         """Return the country code."""
 
         return self.country_code
+
