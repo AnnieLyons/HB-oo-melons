@@ -79,3 +79,38 @@ class InternationalMelonOrder(AbstractMelonOrder):
 
         return self.country_code
 
+""" Pseudocode!!!
+
+class GovernmentMelonOrder it'll inherit from AbstractMelonOrder
+
+order_type is "government" 
+
+tax = 0
+
+passed_inspection = False
+
+
+method mark_inspection(passed) 
+if it passes
+self.passed_inspection = true 
+
+"""
+
+class GovernmentMelonOrder(AbstractMelonOrder):
+    """An government melon order."""
+
+    order_type = "government"
+    tax = 0
+    passed_inspection = False
+
+    def mark_inspection(self, passed):
+        """If a successful melon inspection, update passed_inspection."""
+        if passed:
+            self.passed_inspection = True
+
+# gov_melon = GovernmentMelonOrder("Christmas", 13)
+# print(gov_melon.passed_inspection)
+# gov_melon.mark_inspection(True)
+# print(gov_melon.passed_inspection)
+# print(gov_melon.get_total())
+
