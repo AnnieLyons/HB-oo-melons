@@ -1,55 +1,58 @@
 """Classes for melon orders."""
 
-"""pseudocode:
-
-- AbstractMelonOrder __init__:
-    self.species = species
-    same with quantity, shipped status, order type, tax
-
-- in addition, International will have in __init__: 
-    self.country_code = country_code
-
-- variables on DomesticMelonOrder:
-    tax = 0.08
-    order_type = "domestic"
-
-- variables on InternationalMelonOrder:
-    tax = 0.17
-    order_type = "international"
-
-- get_total in Abstract
+import random
+import datetime
 
 
-item specific atts
+class TooManyMelonsError(ValueError):
+    """Error to raise when too many melons are ordered."""
 
-"""
+    def __init__(self):
+        """Initialize TooManyMelonsError using init method from ValueError."""
+
+        super().__init__("No more than 100 melons!")
 
 class AbstractMelonOrder():
     """An abstract base class that other Melon Orders inherit from."""
-
-    def __init__(self, species, qty, country_code=None, order_type=None, tax=None):
-        """Initialize melon order attributes."""
         
-        self.species = species
-        self.qty = qty
-        self.shipped = False
-        if country_code:
-            self.country_code = country_code
-        if order_type:
-            self.order_type = order_type
-        if tax:
-            self.tax = tax
+    def __init__(self, species, qty, order_type, tax):
+        """Initialize melon order attributes."""
 
+        self.species = species
+
+        if qty > 100:
+            raise TooManyMelonsError
+
+        self.qty = qty
+        self.order_type = order_type
+        self.tax = tax
+        self.shipped = False
+
+    def get_base_price(self):
+        """Calculate base price using splurge pricing and rush hour fee."""
+
+        # Splurge rate
+        base_price = random.randrange(5, 10)
+
+        now = datetime.datetime.now()
+
+        # Is it rush hour?
+        if now.hour >= 8 and now.hour <= 11 and now.weekday() < 5:
+            base_price += 4
+
+        return base_price
 
     def get_total(self):
         """Calculate price, including tax."""
 
-        base_price = 5
-        if self.species == 'Christmas':
-            base_price * 1.5
+        base_price = self.get_base_price()
+
+        if self.species == "Christmas melon":
+            base_price = base_price * 1.5
+
         total = (1 + self.tax) * self.qty * base_price
 
-        if self.qty < 10 and self.order_type == 'international':
+        if self.order_type == "international" and self.qty < 10:
             total += 3
 
         return total
@@ -64,53 +67,34 @@ class AbstractMelonOrder():
 class DomesticMelonOrder(AbstractMelonOrder):
     """A melon order within the USA."""
 
-    order_type = "domestic"
-    tax = 0.08 
+    def __init__(self, species, qty):
+        super().__init__(species, qty, "domestic", 0.08)
 
 
 class InternationalMelonOrder(AbstractMelonOrder):
     """An international (non-US) melon order."""
 
-    order_type = "international"
-    tax = 0.17
+    def __init__(self, species, qty, country_code):
+        super().__init__(species, qty, "international", 0.17)
+        self.country_code = country_code
 
     def get_country_code(self):
         """Return the country code."""
 
         return self.country_code
 
-""" Pseudocode!!!
-
-class GovernmentMelonOrder it'll inherit from AbstractMelonOrder
-
-order_type is "government" 
-
-tax = 0
-
-passed_inspection = False
-
-
-method mark_inspection(passed) 
-if it passes
-self.passed_inspection = true 
-
-"""
 
 class GovernmentMelonOrder(AbstractMelonOrder):
     """An government melon order."""
 
-    order_type = "government"
-    tax = 0
-    passed_inspection = False
+    def __init__(self, species, qty):
+        super().__init__(species, qty, "government", 0.0)
+        self.passed_inspection = False
 
     def mark_inspection(self, passed):
-        """If a successful melon inspection, update passed_inspection."""
-        if passed:
-            self.passed_inspection = True
+        """Record whether the melon order has passed inspection or not."""
 
-# gov_melon = GovernmentMelonOrder("Christmas", 13)
-# print(gov_melon.passed_inspection)
-# gov_melon.mark_inspection(True)
-# print(gov_melon.passed_inspection)
-# print(gov_melon.get_total())
+        self.passed_inspection = passed
+
+
 
